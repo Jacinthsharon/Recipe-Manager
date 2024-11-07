@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Manager</title>
+<style>
+    /* Resetting some default styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Navbar styling */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.7); /* Transparent white background */
+        padding: 15px 20px;
+        z-index: 1000; /* Ensures it's above other content */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+    
+    .navbar.scroll {
+        background-color: rgba(255, 255, 255, 0.9); /* Solid white background on scroll */
+    }
+    
+    .navbar-brand {
+        font-size: 1.5rem;
+        color: #333;
+    }
+    
+    .search-container {
+        display: flex;
+        align-items: center;
+    }
+    
+    .search-input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        width: 200px;
+        margin-right: 10px;
+    }
+    
+    .search-button {
+        background-color: gold;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .search-button:hover {
+        background-color: goldenrod;
+    }
+    
+    /* Fullscreen background image */
+    .hero-section {
+        background-image: url('img/food1.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 100vh; /* Full viewport height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: #fff;
+    }
+    
+    .hero-text {
+        font-size: 3rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px;
+    }
+    
+    .add-recipe-button {
+        display: inline-block;
+        background-color: gold;
+        color: #fff;
+        font-size: 1rem;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .add-recipe-button:hover {
+        background-color: goldenrod;
+    }
+    
+    /* Container for added recipes */
+    .recipe-container {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin: 40px auto 100px; /* Added bottom margin for gap with footer */
+        max-width: 1000px;
+    }
+    
+    .recipe-card {
+        width: calc(33.33% - 20px);
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        position: relative;
+        overflow: hidden; /* To ensure modify form stays within card bounds */
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .recipe-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .recipe-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .recipe-description {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .recipe-buttons {
+        margin-top: 15px;
+    }
+    
+    .recipe-buttons button {
+        margin: 0 5px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .recipe-buttons .modify-button {
+        background-color: #2196F3;
+        color: #fff;
+    }
+    
+    .recipe-buttons .modify-button:hover {
+        background-color: #0b7dda;
+    }
+    
+    .recipe-buttons .delete-button {
+        background-color: #f44336;
+        color: #fff;
+    }
+    
+    .recipe-buttons .delete-button:hover {
+        background-color: #da190b;
+    }
+    
+    .modify-form-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modify-form-container form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .modify-form-container label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .modify-form-container input, 
+    .modify-form-container textarea {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    
+    .modify-form-container button {
+        padding: 10px;
+        font-size: 1rem;
+        background-color: gold;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .modify-form-container button:hover {
+        background-color: goldenrod;
+    }
+    
+    /* Example footer */
+    footer {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+
+    /* Style for centering and hiding the add form */
+#add-form {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure it's above other content */
+    width: 500px;
+    height: 400px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+    <div class="navbar-brand">Recipe Manager</div>
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search...">
+        <button class="search-button">Search</button>
+    </div>
+</nav>
+
+<!-- Hero section with background image -->
+<section class="hero-section">
+    <div class="hero-text">
+        <p>Organize your recipes with ease</p>
+        <a href="#" class="add-recipe-button">Add Recipe</a>
+    </div>
+</section>
+
+<!-- Container for added recipes -->
+<div class="recipe-container" id="recipe-container">
+    <!-- Recipe card 1 -->
+    <div class="recipe-card" data-id="1">
+        <img src="img/food2.jpg" alt="Recipe 1" class="recipe-image">
+        <div class="recipe-title">Lorem ipsum dolor sit amet.</div>
+        <div class="recipe-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum qui at nostrum possimus dignissimos vero?</div>
+        <div class="recipe-buttons">
+            <button class="modify-button">Modify</button>
+            <button class="delete-button">Delete</button>
+        </div>
+    </div>
+    
+    <!-- Recipe card 2 -->
+    <div class="recipe-card" data-id="2">
+        <img src="img/food3.jpg" alt="Recipe 2" class="recipe-image">
+        <div class="recipe-title">Lorem, ipsum dolor.</div>
+        <div class="recipe-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis nesciunt numquam eaque temporibus.</div>
+        <div class="recipe-buttons">
+            <button class="modify-button">Modify</button>
+            <button class="delete-button">Delete</button>
+        </div>
+    </div>
+    
+    <!-- Recipe card 3 -->
+    <div class="recipe-card" data-id="3">
+        <img src="img/food4.jpg" alt="Recipe 3" class="recipe-image">
+        <div class="recipe-title">Lorem ipsum dolor sit.</div>
+        <div class="recipe-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, quo!</div>
+        <div class="recipe-buttons">
+            <button class="modify-button">Modify</button>
+            <button class="delete-button">Delete</button>
+        </div>
+    </div>
+    
+    <!-- Add more recipe cards as needed -->
+</div>
+
+<!-- Example footer -->
+
+
+<div class="modify-form-container" id="add-form">
+    <form id="add-recipe-form">
+        <label for="add-title">Title</label>
+        <input type="text" id="add-title" name="add-title">
+        <label for="add-description">Description</label>
+        <textarea id="add-description" name="add-description"></textarea>
+        <label for="add-image">Image</label>
+        <input type="file" id="add-image" name="add-image">
+        <button type="button" id="add-button">Add Recipe</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const recipeContainer = document.getElementById('recipe-container');
+    const addButton = document.querySelector('.add-recipe-button');
+    const addForm = document.getElementById('add-form');
+    const addRecipeForm = document.getElementById('add-recipe-form');
+
+    // Handle click on Add Recipe button to show the add form
+    addButton.addEventListener('click', function(event) {
+        addForm.style.display = 'block';
+    });
+
+    // Handle click on Add Recipe button inside the form
+    document.getElementById('add-button').addEventListener('click', function() {
+        const title = document.getElementById('add-title').value;
+        const description = document.getElementById('add-description').value;
+        const image = document.getElementById('add-image').value;
+
+        // Create a new recipe card
+        const newCardHtml = `
+            <div class="recipe-card">
+                <img src="${image}" alt="${title}" class="recipe-image">
+                <div class="recipe-title">${title}</div>
+                <div class="recipe-description">${description}</div>
+                <div class="recipe-buttons">
+                    <button class="modify-button">Modify</button>
+                    <button class="delete-button">Delete</button>
+                </div>
+            </div>
+        `;
+
+        // Append new card to recipe container
+        recipeContainer.insertAdjacentHTML('beforeend', newCardHtml);
+
+        // Clear form inputs
+        addRecipeForm.reset();
+
+        // Hide the add form after adding a recipe
+        addForm.style.display = 'none';
+    });
+
+    // Handle click on recipe container for modify and delete actions
+    recipeContainer.addEventListener('click', function(event) {
+        const target = event.target;
+
+        // Handle delete button click
+        if (target.classList.contains('delete-button')) {
+            const card = target.closest('.recipe-card');
+            card.remove();
+        }
+
+        // Handle modify button click
+        if (target.classList.contains('modify-button')) {
+            const card = target.closest('.recipe-card');
+            const currentTitle = card.querySelector('.recipe-title').textContent;
+            const currentDescription = card.querySelector('.recipe-description').textContent;
+            const currentImage = card.querySelector('.recipe-image').src;
+
+            // Create the modify form
+            const formHtml = `
+                <div class="modify-form-container">
+                    <form id="modify-form">
+                        <label for="modify-title">Title</label>
+                        <input type="text" id="modify-title" name="modify-title" value="${currentTitle}">
+                        <label for="modify-description">Description</label>
+                        <textarea id="modify-description" name="modify-description">${currentDescription}</textarea>
+                        <label for="modify-image">Image URL</label>
+                        <input type="file" id="modify-image" name="modify-image" value="${currentImage}">
+                        <button type="button" id="save-modify-button">Save Changes</button>
+                    </form>
+                </div>
+            `;
+
+            // Replace card content with modify form
+            card.innerHTML = formHtml;
+
+            // Save changes button click handler
+            card.querySelector('#save-modify-button').addEventListener('click', function() {
+                const newTitle = document.getElementById('modify-title').value;
+                const newDescription = document.getElementById('modify-description').value;
+                const newImage = document.getElementById('modify-image').value;
+
+                // Update the recipe card with new values
+                card.innerHTML = `
+                    <img src="${newImage}" alt="${newTitle}" class="recipe-image">
+                    <div class="recipe-title">${newTitle}</div>
+                    <div class="recipe-description">${newDescription}</div>
+                    <div class="recipe-buttons">
+                        <button class="modify-button">Modify</button>
+                        <button class="delete-button">Delete</button>
+                    </div>
+                `;
+            });
+        }
+    });
+});
+
+</script>
+
+</body>
+</html>
